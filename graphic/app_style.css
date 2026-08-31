@@ -1,0 +1,18 @@
+* {
+    font-family: "DotumChe RUS BY hidsky", sans-serif;
+	font-size: 20px;
+}
+
+QLayout.device {
+	background-color: black;
+	border-radius: 8px;
+	border: 1px solid white;
+	color: white;
+}
+
+QTextEdit.log {
+    background-color: black;
+    border-radius: 8px;
+	border: 1px solid white;
+    color: white;
+}
