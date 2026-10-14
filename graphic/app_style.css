@@ -1,16 +1,29 @@
 * {
-    font-family: "DotumChe RUS BY hidsky", sans-serif;
-	font-size: 20px;
-	color: black;
-	background-color: white;
+	font-size: 14px;
+	color: #1D1D1F;
+	background-color: #F5F5F7;
 }
 
-/* QFrame.device {
-	background-color: black;
-	border-radius: 3px;
-	border: 1px solid white;
-	color: white;
-} */
+QLabel.title {
+	font-size: 30px;
+	font-weight: bold;
+	color: black;
+}
+
+QFrame.device {
+	background-color: #FAFBFF;
+	border-radius: 10px;
+	border: 1px solid #DFE6F1;
+}
+
+QFrame.device QLabel {
+	background-color: transparent;
+	border: none;
+}
+
+QFrame.device QLabel.device-status {
+	font-size: 12px;
+}
 
 QTextEdit.log {
     background-color: black;
@@ -19,11 +32,25 @@ QTextEdit.log {
     color: white;
 }
 
-/* QPushButton {
+QLabel.auth-circle-connected {
+	background-color: rgb(0, 255, 0);
+	border-radius: 10px;
+	border-color: black;
+}
+
+QLabel.auth-circle-unconnected {
+	background-color: rgb(255, 0, 0);
+	border-radius: 10px;
+	border-color: black;
+}
+
+QPushButton {
+	color: #F5F5F7;
+	background-color: #007AFF;
 	border: 1px solid rgb(255, 255, 255);
 	border-radius: 3px;
 }
 
 QPushButton.password-visible {
 	background-color: rgb(255, 255, 255);
-} */
+}

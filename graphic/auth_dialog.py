@@ -2,6 +2,24 @@ import PyQt6.QtWidgets as qtw
 import PyQt6.QtGui as qtg
 import PyQt6.QtCore as qtc
 
+class NeedFA_AuthDialog(qtw.QDialog):
+	def __init__(self):
+		super().__init__()
+		self.setWindowTitle("Authentication")
+		self.setWindowIcon(qtg.QIcon("icon.ico"))
+
+		self.codeLine = qtw.QLineEdit()
+		self.codeLine.setPlaceholderText("Code") 
+		self.faCode = None
+
+		self.QBtn = qtw.QDialogButtonBox(qtw.QDialogButtonBox.StandardButton.Ok 
+					| qtw.QDialogButtonBox.StandardButton.Cancel)
+
+		self.QBtn.accepted.connect(lambda: self.setCode(self.codeLine.text()))
+
+	def setCode(self, code):
+		self.faCode = code
+
 class AuthDialog(qtw.QDialog):
 	def __init__(self):
 		super().__init__()
@@ -46,10 +64,10 @@ class AuthDialog(qtw.QDialog):
 	def setPasswd(self, passwd):
 		self.passwd = passwd
 
-	def get_login(self):
+	def getLogin(self):
 		return self.login
 
-	def get_passwd(self):
+	def getPasswd(self):
 		return self.passwd
 
 class CustomPasswordTextLine(qtw.QLineEdit):

@@ -59,16 +59,6 @@ class IphoneManager(QThread):
 			except Exception as e:
 				print(e)
 
-	def authDevice(self, login, passwd):
-		if self.system == "linux":
-			authProcess = subprocess.Popen([f"core/linux_ipatool/ipatool-linux auth login -e {login} -p {passwd}"], 
-												stdout=subprocess.PIPE)
-			# authProcess.wait()
-			self.logging(authProcess)
-
-		if self.system == "win32":
-			subprocess.Popen([], stdout=subprocess.PIPE, shell=True)
-
 	def set_updating(self, updating):
 		self.updating = updating
 
