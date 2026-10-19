@@ -14,7 +14,7 @@ class AppController(QObject):
 
 		self.connectSignals()
 
-	def connectSignals(self):
+	def connectSignals(self): 
 		self.manager.connectedSignal.connect(self.mainWindow.updateDevice)
 		self.manager.logSignal.connect(self.mainWindow.updateLog)
 

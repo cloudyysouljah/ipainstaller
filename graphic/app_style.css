@@ -4,6 +4,20 @@
 	background-color: #F5F5F7;
 }
 
+QFrame.mainFrame {
+	background-color: #F5F5F7; /* Цвет фона вашего окна */
+	border-radius: 12px;       /* Радиус закругления */
+	border: 1px solid #34495e; /* Опционально: рамка */
+}
+
+QPushButton.custom-button {
+	font-weight: bold;
+	color: #F5F5F7;
+	background-color: #007AFF;
+	border: 1px solid rgb(255, 255, 255);
+	border-radius: 3px;
+}
+
 QLabel.title {
 	font-size: 30px;
 	font-weight: bold;
@@ -44,12 +58,12 @@ QLabel.auth-circle-unconnected {
 	border-color: black;
 }
 
-QPushButton {
+/* QPushButton {
 	color: #F5F5F7;
 	background-color: #007AFF;
 	border: 1px solid rgb(255, 255, 255);
 	border-radius: 3px;
-}
+} */
 
 QPushButton.password-visible {
 	background-color: rgb(255, 255, 255);
