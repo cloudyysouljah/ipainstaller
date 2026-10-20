@@ -4,6 +4,7 @@ from graphic.main_window import MainWindow
 # from graphic.installed_apps_window import InstalledAppsWindow
 # from graphic.auth_dialog import AuthDialog
 from core.handler import IphoneManager
+from core.handler import SubProcess
 
 class AppController(QObject):
 	def __init__(self):
@@ -11,6 +12,7 @@ class AppController(QObject):
 
 		self.mainWindow = MainWindow()
 		self.manager = IphoneManager(sys.platform)
+		self.subProcess = SubProcess()
 
 		self.connectSignals()
 
@@ -19,7 +21,7 @@ class AppController(QObject):
 		self.manager.logSignal.connect(self.mainWindow.updateLog)
 
 		self.mainWindow.closeSignal.connect(self.manager.stop)
-		# self.mainWindow.authSignal.connect(self.manager.authDevice)
+		self.mainWindow.authSignal.connect(self.manager.authProcess)
 
 	def start(self):
 		self.mainWindow.show()

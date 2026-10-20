@@ -21,7 +21,8 @@ class NeedFA_AuthDialog(qtw.QDialog):
 		self.faCode = code
 
 class AuthDialog(qtw.QDialog):
-	def __init__(self):
+	authSignal = qtc.pyqtSignal(str, str)
+	def __init__(self, parent=None):
 		super().__init__()
 		self.setWindowTitle("Authentication")
 		self.setWindowIcon(qtg.QIcon("icon.ico"))
@@ -57,6 +58,19 @@ class AuthDialog(qtw.QDialog):
 		self.passwdText.textChanged.connect(self.setPasswd)
 		self.QBtn.accepted.connect(self.accept)
 		self.QBtn.rejected.connect(self.reject)
+
+	def accept(self):
+		if not self.login:
+			self.showError("Login is empty")
+			return
+		if not self.passwd:
+			self.showError("Password is empty")
+			return
+		self.authSignal.emit(self.login, self.passwd)
+		return super().accept()
+
+	def showError(self, error):
+		qtw.QMessageBox.critical(self, "Error", error)
 
 	def setLogin(self, login):
 		self.login = login

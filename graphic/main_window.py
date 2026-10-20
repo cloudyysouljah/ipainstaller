@@ -123,12 +123,11 @@ class MainWindow(qtw.QWidget):
 		super().__init__()
 		self.setWindowFlags(qtc.Qt.WindowType.FramelessWindowHint)
 		self.setAttribute(qtc.Qt.WidgetAttribute.WA_TranslucentBackground)
-		# self.setWindowTitle("IPA Installer")
 		self.setWindowIcon(qtg.QIcon("icon.ico"))
 		self.authDialog = auth_dialog.AuthDialog()
+		self.connected = False
 		self.initUI()
 		self.connectButtons()
-		# self.connectSignals()
 
 	def initUI(self):
 		self.title_bar = CustomTitleBar(self)
@@ -189,6 +188,7 @@ class MainWindow(qtw.QWidget):
 		# Buttons layout 
 		self.buttonsLayout = qtw.QVBoxLayout()
 		self.authButton = CustomPushButton("● Authenticate", self)
+		self.authButton.setEnabled(False)
 		# self.installButton = qtw.QPushButton("Installed apps")
 		self.buttonsLayout.addWidget(self.authButton)
 		# self.buttonsLayout.addWidget(self.installButton)
@@ -223,7 +223,8 @@ class MainWindow(qtw.QWidget):
 
 	def connectButtons(self):
 		self.authButton.clicked.connect(self.authDialog.show)
-		self.authDialog.accepted.connect(self.auth)
+		self.authDialog.authSignal.connect(self.auth)
+		
 		# self.installButton.clicked.connect(InstalledAppsWindow)
 		# self.connectedSignal.connect(self.updateDevice)
 
@@ -253,6 +254,7 @@ class MainWindow(qtw.QWidget):
 		else:
 			self.deviceModel.setText(f"Model: -")
 			self.deviceImage.setPixmap(qtg.QPixmap("sources/png/unknown.png"))
+		self.authButton.setEnabled(connectStatus)
 
 	def updateDeviceLabel(self, state):
 		if state:

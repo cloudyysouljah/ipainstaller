@@ -11,12 +11,45 @@ def decodeAnswer(answer):
 	answer = answer.decode("utf-8").rstrip()
 	return answer
 
-# class AuthResponse(QProcess):
-# 	def __init__(self, auth):
-# 		super().__init__()
-# 		self.auth = auth
+class SubProcess(QProcess):
+	successSignal = pyqtSignal()
+	errorSignal = pyqtSignal()
+	def __init__(self):
+		super().__init__()
+		self.readyReadStandardOutput.connect(self.readStdout)
+		self.readyReadStandardError.connect(self.readStderr)
+		self.finished.connect(self.isSuccess)
+		self.errorOccurred.connect(self.processError)
 
-# 	def 
+	def run(self, command, args):
+		if self.state() != QProcess.ProcessState.NotRunning:
+			print("Process is already running")
+			return
+		self.start(command, args)
+
+	def readStdout(self):
+		print("stdout:", bytes(self.readAllStandardOutput()).decode(
+			"utf-8", errors="replace"
+		))
+
+	def readStderr(self):
+		print("stderr:", bytes(self.readAllStandardError()).decode(
+			"utf-8", errors="replace"
+		))
+
+	def processError(self, error):
+		print("Process error:", self.errorString())
+		if error == QProcess.ProcessError.FailedToStart:
+			self.errorSignal.emit()
+
+	def isSuccess(self):
+		print(self.exitCode())
+		if self.exitStatus() == QProcess.ExitStatus.NormalExit and self.exitCode() == 0:
+			print("Success")
+			self.successSignal.emit()
+		else:
+			print("Error")
+			self.errorSignal.emit()
 
 class IphoneManager(QThread):
 	connectedSignal = pyqtSignal(bool, str, str)
@@ -27,6 +60,8 @@ class IphoneManager(QThread):
 		self.connected_device = False
 		self.auth = False
 		self.system = system
+
+		self.subProcess = SubProcess()
 
 	def run(self):
 		while self.updating:
@@ -58,6 +93,10 @@ class IphoneManager(QThread):
 					
 			except Exception as e:
 				print(e)
+
+	def authProcess(self, login, passwd):
+		self.subProcess.run("/home/leonid/projects/ipainstaller/core/linux_ipatool/ipatool-linux",
+		["auth", "login", "-e", login, "-p", passwd])
 
 	def set_updating(self, updating):
 		self.updating = updating
