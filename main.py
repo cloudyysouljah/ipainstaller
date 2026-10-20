@@ -5,6 +5,7 @@ from PyQt6.QtGui import QFontDatabase
 from app_controller import AppController
 
 if __name__ == "__main__":
+	system = sys.platform
 	style = open("graphic/app_style.css", "r").read()
 
 	app = QApplication(sys.argv)

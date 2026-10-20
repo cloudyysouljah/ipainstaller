@@ -5,6 +5,7 @@ import subprocess
 import graphic.main_window
 import models
 from PyQt6.QtCore import QThread, QProcess, pyqtSignal
+from pathlib import Path
 
 @staticmethod
 def decodeAnswer(answer):
@@ -67,36 +68,62 @@ class IphoneManager(QThread):
 		while self.updating:
 			try:
 				if self.system == "linux":
-					updateProcess = subprocess.Popen(["idevice_id", "-l"], 
-										stdout=subprocess.PIPE)
+					updateProcess = subprocess.Popen(["idevice_id -l"], 
+													 stdout=subprocess.PIPE, 
+													 shell=True)
 					# self.logging(updateProcess)
 					updateProcess.wait()
 					updateStdout = updateProcess.stdout.read()
 					# self.logging(updateProcess)
 					if updateProcess.returncode == 0:
 						uuid = decodeAnswer(updateStdout)
+						modelProcess = subprocess.Popen([f"ideviceinfo -u {uuid} -k ProductType"], 
+														   stdout=subprocess.PIPE, 
+														   shell=True)
+						# self.logging(modelProcess)
+						modelProcess.wait()
+						if modelProcess.returncode == 0:
+							model = decodeAnswer(modelProcess.stdout.read())
+							self.connectedSignal.emit(True, uuid, model)
+					else:
+						self.connectedSignal.emit(False, None, None)
+						self.msleep(1000)
+				if self.system == "win32":
+					ideviceExePath = Path(__file__).resolve().parent / "win_tools" / "idevice_id.exe"
+					updateProcess = subprocess.Popen([ideviceExePath, "-l"], 
+													  stdout=subprocess.PIPE, 
+													  shell=True)
+					# self.logging(updateProcess)
+					updateProcess.wait()
+					updateStdout = updateProcess.stdout.read()
+					# self.logging(updateProcess)
+					if updateProcess.returncode == 0:
+						uuid = decodeAnswer(updateStdout)
+						print(uuid)
+						ideviceExePath = Path(__file__).resolve().parent / "win_tools" / "ideviceinfo.exe"
 						modelProcess = subprocess.Popen(
-											["ideviceinfo", "-u" , uuid , "-k", "ProductType"], 
-											stdout=subprocess.PIPE)
+							[str(ideviceExePath), "-u", uuid, "-k", "ProductType"],
+							stdout=subprocess.PIPE,
+							stderr=subprocess.PIPE,
+						)
 						# self.logging(modelProcess)
 						modelProcess.wait()
 						if modelProcess.returncode == 0:
 							model = models.models.get(decodeAnswer(modelProcess.stdout.read()))
+							print(model)
 							self.connectedSignal.emit(True, uuid, model)
-							self.set_connected_device(True)
 					else:
 						self.connectedSignal.emit(False, None, None)
 					self.msleep(1000)
-				if self.system == "win32":
-					update_process = subprocess.Popen([""], )
-					self.msleep(1000)
-					
 			except Exception as e:
 				print(e)
 
 	def authProcess(self, login, passwd):
-		self.subProcess.run("/home/leonid/projects/ipainstaller/core/linux_ipatool/ipatool-linux",
-		["auth", "login", "-e", login, "-p", passwd])
+		if self.system == "linux":
+			self.subProcess.run("/home/leonid/projects/ipainstaller/core/linux_ipatool/ipatool-linux",
+			["auth", "login", "-e", login, "-p", passwd])
+		if self.system == "win32":
+			self.subProcess.run("core\\windows_ipatool\\ipatool.exe", ["auth", "login", "-e", login, "-p", passwd])
 
 	def set_updating(self, updating):
 		self.updating = updating

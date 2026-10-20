@@ -244,15 +244,16 @@ class MainWindow(qtw.QWidget):
 		self.log.moveCursor(qtg.QTextCursor.MoveOperation.End)
 
 	def updateDevice(self, connectStatus, deviceId, deviceName):
+		# print(connectStatus, deviceId, deviceName)
 		self.updateDeviceLabel(connectStatus)
 		if connectStatus:
 			self.deviceModel.setText(deviceName)
 			if os.path.exists(f"sources/png/{deviceName}.png"):
 				self.updateImage(f"sources/png/{deviceName}.png")
 			else:
-				self.updateImage(f"sources/png/unknown.png")
+				self.updateImage("sources/png/unknown.png")
 		else:
-			self.deviceModel.setText(f"Model: -")
+			self.deviceModel.setText("Model: -")
 			self.deviceImage.setPixmap(qtg.QPixmap("sources/png/unknown.png"))
 		self.authButton.setEnabled(connectStatus)
 
