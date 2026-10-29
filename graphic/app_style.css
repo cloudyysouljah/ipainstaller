@@ -15,7 +15,15 @@ QPushButton.custom-button {
 	color: #F5F5F7;
 	background-color: #007AFF;
 	border: 1px solid rgb(255, 255, 255);
-	border-radius: 3px;
+	border-radius: 5px;
+}
+
+QPushButton.custom-button:hover {
+	font-weight: bold;
+	color: #F5F5F7;
+	background-color: #015fc4;
+	border: 1px solid rgb(255, 255, 255);
+	border-radius: 5px;
 }
 
 QLabel.title {
@@ -67,4 +75,10 @@ QLabel.auth-circle-unconnected {
 
 QPushButton.password-visible {
 	background-color: rgb(255, 255, 255);
+}
+
+QFrame.app-row {
+	background-color: #b4b5b9;
+	border-radius: 10px;
+	border: 1px solid #DFE6F1;
 }

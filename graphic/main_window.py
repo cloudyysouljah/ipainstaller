@@ -5,6 +5,28 @@ import os
 
 import graphic.auth_dialog as auth_dialog
 
+class AppRow(qtw.QWidget):
+	def __init__(self, appName, parent=None):
+		super().__init__(parent)
+
+		self.mainFrame = qtw.QFrame(self)
+		self.mainFrame.setProperty("class", "app-row")
+		self.mainlayout = qtw.QHBoxLayout(self.mainFrame)
+		self.appImage = qtw.QLabel()
+		appPixmap = qtg.QPixmap(f".cache/{appName}.png")
+		self.appImage.setPixmap(appPixmap.scaled(64, 64, qtc.Qt.AspectRatioMode.KeepAspectRatio))
+		# self.appImage.setFixedSize(64, 64)
+		self.appName = qtw.QLabel(appName)
+		self.appName.setStyleSheet("font-weight: bold;")
+		self.downloadButton = CustomPushButton("Download")
+		self.mainlayout.addWidget(self.appImage)
+		self.mainlayout.addWidget(self.appName, alignment=qtc.Qt.AlignmentFlag.AlignTop)
+		self.mainlayout.addWidget(self.downloadButton)
+		# self.mainlayout.setContentsMargins(0, 0, 0, 0)
+		self.mainlayout.setSpacing(0)
+		# self.setFixedHeight(64)
+		self.setLayout(self.mainlayout)
+
 class CustomPushButton(qtw.QPushButton):
 	def __init__(self, text, parent=None):
 		super().__init__(text, parent)
@@ -62,7 +84,7 @@ class CustomTitleBar(qtw.QWidget):
 
 		# Window Buttons
 		self.btnMin = qtw.QPushButton("—")
-		self.btnMax = qtw.QPushButton("▢")
+		# self.btnMax = qtw.QPushButton("▢")
 		self.btnClose = qtw.QPushButton("✕")
 
 		# Styling the buttons
@@ -71,19 +93,20 @@ class CustomTitleBar(qtw.QWidget):
 				background-color: transparent;
 				color: #1D1D1F;
 				border: none;
+				border-radius: 5px;
 				font-size: 14px;
 				width: 25px;
 				height: 20px;
 			}
 			QPushButton:hover {
-				background-color: #444444;
+				background-color: #899bb8;
 			}
 		"""
 		closeBtnStyle = btnStyle + "QPushButton:hover { background-color: #E81123; }"
 
-		for btn in (self.btnMin, self.btnMax):
-			btn.setStyleSheet(btnStyle)
-			layout.addWidget(btn)
+		# for btn in (self.btnMin, self.btnMax):
+		self.btnMin.setStyleSheet(btnStyle)
+		layout.addWidget(self.btnMin)
 
 		self.btnClose.setStyleSheet(closeBtnStyle)
 		layout.addWidget(self.btnClose)
@@ -95,16 +118,16 @@ class CustomTitleBar(qtw.QWidget):
 		# """)
 
 		self.btnMin.clicked.connect(self.parentWindow.showMinimized)
-		self.btnMax.clicked.connect(self.toggleMaximize)
+		# self.btnMax.clicked.connect(self.toggleMaximize)
 		self.btnClose.clicked.connect(self.parentWindow.close)
 
-	def toggleMaximize(self):
-		if self.parentWindow.isMaximized():
-			self.parentWindow.showNormal()
-			self.btnMax.setText("▢")
-		else:
-			self.parentWindow.showMaximized()
-			self.btnMax.setText("❐")
+	# def toggleMaximize(self):
+	# 	if self.parentWindow.isMaximized():
+	# 		self.parentWindow.showNormal()
+	# 		self.btnMax.setText("▢")
+	# 	else:
+	# 		self.parentWindow.showMaximized()
+	# 		self.btnMax.setText("❐")
 
 	def mousePressEvent(self, event: qtg.QMouseEvent):
 		if event.button() == qtc.Qt.MouseButton.LeftButton:
@@ -119,13 +142,14 @@ class CustomTitleBar(qtw.QWidget):
 class MainWindow(qtw.QWidget):
 	closeSignal = qtc.pyqtSignal()
 	authSignal = qtc.pyqtSignal(str, str)
+	codeSignal = qtc.pyqtSignal(str)
 	def __init__(self):
 		super().__init__()
 		self.setWindowFlags(qtc.Qt.WindowType.FramelessWindowHint)
 		self.setAttribute(qtc.Qt.WidgetAttribute.WA_TranslucentBackground)
 		self.setWindowIcon(qtg.QIcon("icon.ico"))
-		self.authDialog = auth_dialog.AuthDialog()
 		self.connected = False
+		self.needAuth = True
 		self.initUI()
 		self.connectButtons()
 
@@ -135,7 +159,7 @@ class MainWindow(qtw.QWidget):
 		self.mainFrame.setProperty("class", "mainFrame")
 		self.mainLayout = qtw.QVBoxLayout(self.mainFrame)
 		self.mainLayout.setContentsMargins(0, 0, 0, 0)
-		self.mainLayout.setSpacing(0)
+		self.mainLayout.setSpacing(5)
 		self.contentLayout = qtw.QVBoxLayout()
 		self.contentLayout.setContentsMargins(9, 6, 9, 9)
 		self.titleLabel = qtw.QLabel("IPA Installer")
@@ -165,6 +189,19 @@ class MainWindow(qtw.QWidget):
 		self.deviceImage.setFixedSize(64, 64)
 		self.deviceImage.setAlignment(qtc.Qt.AlignmentFlag.AlignCenter)
 
+		self.appsFrame = qtw.QFrame()
+		self.appsFrame.setMinimumWidth(300)
+		self.appsFrame.setFixedHeight(250)
+		self.appsFrame.setProperty("class", "device")
+		self.appsLayout = qtw.QVBoxLayout(self.appsFrame)
+
+		self.appRow1 = AppRow("WhatsApp")
+		self.appRow2 = AppRow("Telegram")
+		self.appRow3 = AppRow("YouTube")
+		self.appsLayout.addWidget(self.appRow1)
+		self.appsLayout.addWidget(self.appRow2)
+		self.appsLayout.addWidget(self.appRow3)
+
 		# Auth layout 
 		# self.authLayout = qtw.QHBoxLayout()
 		# self.authButton = CustomPushButton()
@@ -187,10 +224,24 @@ class MainWindow(qtw.QWidget):
 
 		# Buttons layout 
 		self.buttonsLayout = qtw.QVBoxLayout()
-		self.authButton = CustomPushButton("● Authenticate", self)
+		self.authButton = CustomPushButton("Authorization", self)
 		self.authButton.setEnabled(False)
+
+		self.installButton = CustomPushButton("Install .ipa", self)
+
+		self.appsLayout = qtw.QHBoxLayout()
+		self.appsLabel = qtw.QLabel("Installed apps")
+		self.appsLabel.setStyleSheet("font-weight: bold;")
+		self.appsMoreButton = qtw.QPushButton("...")
+		self.appsMoreButton.setFixedSize(20, 20)
+		# self.appsMoreButton.setStyleSheet("border-radius: 1px;")
+		self.appsLayout.addWidget(self.appsLabel)
+		self.appsLayout.addWidget(self.appsMoreButton, alignment=qtc.Qt.AlignmentFlag.AlignRight)
+
+		# self.installButton.setEnabled(False)
+
 		# self.installButton = qtw.QPushButton("Installed apps")
-		self.buttonsLayout.addWidget(self.authButton)
+		# self.buttonsLayout.addWidget(self.authButton)
 		# self.buttonsLayout.addWidget(self.installButton)
 
 		# Logger layout 
@@ -215,21 +266,32 @@ class MainWindow(qtw.QWidget):
 		self.contentLayout.addWidget(self.deviceTitle, 
 								  alignment=qtc.Qt.AlignmentFlag.AlignLeft | 
 								  qtc.Qt.AlignmentFlag.AlignTop)
+		self.infoLayout.addWidget(self.authButton)
 		self.contentLayout.addWidget(self.deviceFrame)
-		self.contentLayout.addLayout(self.buttonsLayout)
+		self.contentLayout.addWidget(self.installButton)
+		self.contentLayout.addLayout(self.appsLayout)
+		self.contentLayout.addWidget(self.appsFrame)
 		# self.mainLayout.addLayout(self.buttonsLayout)
 		# self.mainLayout.addLayout(self.loggerLayout)
 		# self.show()
 
-	def connectButtons(self):
-		self.authButton.clicked.connect(self.authDialog.show)
+	def createAuthDialog(self):
+		self.authDialog = auth_dialog.AuthDialog()
 		self.authDialog.authSignal.connect(self.auth)
+		self.authDialog.codeSignal.connect(self.sendCode)
+		self.authDialog.show()
+
+	def connectButtons(self):
+		self.authButton.clicked.connect(self.createAuthDialog)
 		
 		# self.installButton.clicked.connect(InstalledAppsWindow)
 		# self.connectedSignal.connect(self.updateDevice)
 
-	def auth(self):
-		self.authSignal.emit(self.authDialog.getLogin(), self.authDialog.getPasswd())
+	def sendCode(self, code):
+		self.codeSignal.emit(code)
+
+	def auth(self, login, passwd):
+		self.authSignal.emit(login, passwd)
 
 	def updateImage(self, path):
 		self.deviceImage.setPixmap(qtg.QPixmap(path))
@@ -257,12 +319,19 @@ class MainWindow(qtw.QWidget):
 		self.authButton.setEnabled(connectStatus)
 
 	def updateDeviceLabel(self, state):
-		if state:
+		if state and self.needAuth == True:
 			self.deviceLabel.setText("● Need authorization")
 			self.deviceLabel.setStyleSheet("color: #FF9933; font-weight: bold;")
+		elif state and self.needAuth == False:
+			self.deviceLabel.setText("● Device connected")
+			self.deviceLabel.setStyleSheet("color: #00FF00; font-weight: bold;")
+			self.authButton.setVisible(False)
 		else:
 			self.deviceLabel.setText("● Device not connected")
 			self.deviceLabel.setStyleSheet("color: #D64545; font-weight: bold;")
+
+	def updateAuth(self, state):
+		self.needAuth = state
 
 	def closeEvent(self, event):
 		self.closeSignal.emit()

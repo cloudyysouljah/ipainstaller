@@ -3,6 +3,7 @@ import PyQt6.QtGui as qtg
 import PyQt6.QtCore as qtc
 
 class NeedFA_AuthDialog(qtw.QDialog):
+	faSignal = qtc.pyqtSignal(str)
 	def __init__(self):
 		super().__init__()
 		self.setWindowTitle("Authentication")
@@ -17,11 +18,34 @@ class NeedFA_AuthDialog(qtw.QDialog):
 
 		self.QBtn.accepted.connect(lambda: self.setCode(self.codeLine.text()))
 
+		self.mainlayout = qtw.QVBoxLayout()
+		self.mainlayout.addWidget(self.codeLine)
+		self.mainlayout.addWidget(self.QBtn)
+		self.setLayout(self.mainlayout)
+
+		self.setFixedSize(300, 100)
+
+		self.codeLine.textChanged.connect(lambda: self.setCode(self.codeLine.text()))
+
+		self.connectSignals()
+
 	def setCode(self, code):
 		self.faCode = code
 
+	def connectSignals(self):
+		self.QBtn.accepted.connect(self.accept)
+		self.QBtn.rejected.connect(self.reject)
+
+	def accept(self):
+		if not self.faCode:
+			self.showError("Code is empty")
+			return
+		self.faSignal.emit(self.faCode)
+		return super().accept()
+
 class AuthDialog(qtw.QDialog):
 	authSignal = qtc.pyqtSignal(str, str)
+	codeSignal = qtc.pyqtSignal(str)
 	def __init__(self, parent=None):
 		super().__init__()
 		self.setWindowTitle("Authentication")
@@ -52,6 +76,7 @@ class AuthDialog(qtw.QDialog):
 							| qtw.QDialogButtonBox.StandardButton.Cancel)
 		self.mainLayout.addWidget(self.QBtn)
 		self.setLayout(self.mainLayout)
+		self.setFixedSize(300, 100)
 
 	def connectSignals(self):
 		self.loginText.textChanged.connect(self.setLogin)
@@ -83,6 +108,14 @@ class AuthDialog(qtw.QDialog):
 
 	def getPasswd(self):
 		return self.passwd
+
+	def createFAdialog(self):
+		needFA = NeedFA_AuthDialog()
+		needFA.faSignal.connect(self.sendCode)
+		needFA.show()
+
+	def sendCode(self, code):
+		self.codeSignal.emit(code)
 
 class CustomPasswordTextLine(qtw.QLineEdit):
 	def __init__(self):
