@@ -78,7 +78,25 @@ QPushButton.password-visible {
 }
 
 QFrame.app-row {
-	background-color: #b4b5b9;
+	background-color: #DFE6F1;
 	border-radius: 10px;
-	border: 1px solid #DFE6F1;
+	border: 1px solid #b8bfda;
+}
+
+QPushButton.more-button {
+	border: 1px solid #b8bfda;
+	border-radius: 10px;
+}
+
+QPushButton.more-button:hover {
+	background-color: #DFE6F1;
+	border: 1px solid #b8bfda;
+	border-radius: 10px;
+}
+
+QPushButton.more-button:pressed {
+	color: white;
+	background-color: #DFE6F1;
+	border: 1px solid #b8bfda;
+	border-radius: 10px;
 }

@@ -11,10 +11,11 @@ class AppRow(qtw.QWidget):
 
 		self.mainFrame = qtw.QFrame(self)
 		self.mainFrame.setProperty("class", "app-row")
+		self.mainFrame.setFixedSize(280, 64)
 		self.mainlayout = qtw.QHBoxLayout(self.mainFrame)
 		self.appImage = qtw.QLabel()
 		appPixmap = qtg.QPixmap(f".cache/{appName}.png")
-		self.appImage.setPixmap(appPixmap.scaled(64, 64, qtc.Qt.AspectRatioMode.KeepAspectRatio))
+		self.appImage.setPixmap(appPixmap.scaled(48, 48, qtc.Qt.AspectRatioMode.KeepAspectRatio))
 		# self.appImage.setFixedSize(64, 64)
 		self.appName = qtw.QLabel(appName)
 		self.appName.setStyleSheet("font-weight: bold;")
@@ -22,10 +23,10 @@ class AppRow(qtw.QWidget):
 		self.mainlayout.addWidget(self.appImage)
 		self.mainlayout.addWidget(self.appName, alignment=qtc.Qt.AlignmentFlag.AlignTop)
 		self.mainlayout.addWidget(self.downloadButton)
-		# self.mainlayout.setContentsMargins(0, 0, 0, 0)
+		self.mainlayout.setContentsMargins(5, 5, 5, 5)
 		self.mainlayout.setSpacing(0)
 		# self.setFixedHeight(64)
-		self.setLayout(self.mainlayout)
+		# self.setLayout(self.mainlayout)
 
 class CustomPushButton(qtw.QPushButton):
 	def __init__(self, text, parent=None):
@@ -191,7 +192,7 @@ class MainWindow(qtw.QWidget):
 
 		self.appsFrame = qtw.QFrame()
 		self.appsFrame.setMinimumWidth(300)
-		self.appsFrame.setFixedHeight(250)
+		self.appsFrame.setFixedHeight(230)
 		self.appsFrame.setProperty("class", "device")
 		self.appsLayout = qtw.QVBoxLayout(self.appsFrame)
 
@@ -232,9 +233,10 @@ class MainWindow(qtw.QWidget):
 		self.appsLayout = qtw.QHBoxLayout()
 		self.appsLabel = qtw.QLabel("Installed apps")
 		self.appsLabel.setStyleSheet("font-weight: bold;")
-		self.appsMoreButton = qtw.QPushButton("...")
+		self.appsMoreButton = qtw.QPushButton("···")
 		self.appsMoreButton.setFixedSize(20, 20)
-		# self.appsMoreButton.setStyleSheet("border-radius: 1px;")
+		self.appsMoreButton.setProperty("class", "more-button")
+		# self.appsMoreButton.setStyleSheet("border: 1px solid black; border-radius: 10px;")
 		self.appsLayout.addWidget(self.appsLabel)
 		self.appsLayout.addWidget(self.appsMoreButton, alignment=qtc.Qt.AlignmentFlag.AlignRight)
 

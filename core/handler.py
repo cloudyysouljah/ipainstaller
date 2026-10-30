@@ -26,6 +26,8 @@ class SubProcess(QProcess):
 		self.finished.connect(self.isSuccess)
 		self.errorOccurred.connect(self.processError)
 
+		self.jsonAnswer = None
+
 	def run(self, command, args):
 		if self.state() != QProcess.ProcessState.NotRunning:
 			print("Process is already running")
@@ -51,10 +53,18 @@ class SubProcess(QProcess):
 		stdout = self.stdout_data.decode("utf-8", errors="replace")
 		stderr = self.stderr_data.decode("utf-8", errors="replace")
 		message = "\n".join(part.strip() for part in (stdout, stderr) if part.strip())
+		print(message)
 		if exit_status == QProcess.ExitStatus.NormalExit and exit_code == 0:
 			self.successSignal.emit(message)
+			# self.setJsonAnswer(json.loads(stdout))
 		else:
 			self.errorSignal.emit(message or f"Process exited with code {exit_code}")
+
+	def getJsonAnswer(self):
+		return self.jsonAnswer
+
+	def setJsonAnswer(self, jsonAnswer):
+		self.jsonAnswer = jsonAnswer
 
 class IphoneManager(QThread):
 	connectedSignal = pyqtSignal(bool, str, str)
@@ -126,7 +136,6 @@ class IphoneManager(QThread):
 		self.handleAuthResponse(message)
 
 	def handleAuthResponse(self, message):
-		# print(1)
 		# print(message)
 		for line in message.splitlines():
 			# print(line)
@@ -134,9 +143,8 @@ class IphoneManager(QThread):
 				continue
 			try:
 				response = json.loads(line)
-				print(response)
+				# print(response)
 			except json.JSONDecodeError:
-				# print("2121")
 				# self.logSignal.emit(line)
 				continue
 			if isinstance(response, dict):
@@ -151,7 +159,18 @@ class IphoneManager(QThread):
 					self.needFAsignal.emit()
 			if response.get("success") == True:
 				self.successSignal.emit(False)
+				self.subProcess.run("core/linux/ipatool_linux", 
+					["list-purchases", "--format", "json", "-l", "100"])
+				# print(self.subProcess.)
+				# appsJson = self.subProcess.getJsonAnswer()
+				# # self.downloadIcons(appsJson)
+				# print(appsJson)
 			# self.logSignal.emit(json.dumps(response, ensure_ascii=False))
+
+	def downloadIcons(self, apps = None):
+		for bundle_id, name in apps:
+			self.subProcess.run("pymobiledevice3", 
+			    ["springboard", "icon", bundle_id, f".cache/{name}.png"])
 
 	def setUpdating(self, updating):
 		self.updating = updating
